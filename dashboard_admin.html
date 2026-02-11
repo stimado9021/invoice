@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Administrativo | Joicy Nails</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+
+<body>
+  <div class="d-flex">
+    <nav class="sidebar p-4">
+      <h3 class="gold-text fw-bold mb-4">ADMIN CONTROL</h3>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link active">📊 Resumen General</a>
+        </li>
+        <li class="nav-item mb-3">
+          <a href="#seccion-impuestos" class="nav-link">💰 Rept de Impuestos</a>
+        </li>
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link">📦 Gestión de Inventario</a>
+        </li>
+
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link">👥 Usuarios del Sistema</a>
+        </li>
+
+        <li class="nav-item mt-5">
+          <a onclick="cerrarSesion()" class="nav-link text-danger" style="cursor: pointer">Salir</a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="flex-grow-1 p-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold gold-text">Dashboard Administrativo</h2>
+        <div class="d-flex align-items-center gap-3">
+          <span id="adminName" class="badge border border-gold p-2">Admin</span>
+          <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
+            Salir del Sistema
+          </button>
+        </div>
+      </div>
+
+
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-4">
+          <div class="stat-card p-4">
+            <small class="text-white">VENTAS DE HOY</small>
+            <h3 id="ventasDia" class="gold-text fw-bold">$0.00</h3>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card p-4">
+            <small class="text-white">ÚLTIMOS 7 DÍAS</small>
+            <h3 id="ventasSemana" class="gold-text fw-bold">$0.00</h3>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card p-4">
+            <small class="text-white">TOTAL DEL MES</small>
+            <h3 id="ventasMes" class="gold-text fw-bold">$0.00</h3>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="accordion-item bg-dark border-secondary mt-2">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+            data-bs-target="#panelHistorial">
+            <i class="bi bi-clock-history me-2 gold-text"></i> HISTORIAL DE
+            VENTAS
+          </button>
+        </h2>
+        <div id="panelHistorial" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <section class="mt-5"></section>
+            <div class="table-responsive">
+              <h4 class="gold-text fw-bold">📦 VENTAS DETALLE</h4>
+              <div class="row mb-3 align-items-end">
+                <div class="col-md-3">
+                  <label for="filtroFecha" class="form-label">Filtrar por periodo:</label>
+                  <select id="filtroFecha" class="form-select bg-black text-white border-secondary"
+                    onchange="cargarHistorialVentas()">
+                    <option value="hoy" selected>Ventas de Hoy</option>
+                    <option value="semana">Esta Semana</option>
+                    <option value="mes">Este Mes</option>
+                    <option value="todas">Todas las Ventas</option>
+                  </select>
+                </div>
+                <div class="col-md-9 d-flex justify-content-end gap-2">
+                  <button class="btn btn-gold  mt-3 fw-bold p-2" onclick="exportarPDF()"><i class="bi bi-file-pdf"></i>
+                    PDF</button>
+                  <button class="btn btn-gold  mt-3 fw-bold p-2" onclick="exportarExcel()"><i
+                      class="bi bi-file-excel"></i>
+                    Excel</button>
+                </div>
+              </div>
+              <table class="table table-dark table-hover">
+                <thead>
+                  <tr>
+                    <th>FECHA</th>
+                    <th>HORA</th>
+                    <th>VENDEDOR</th>
+                    <th>TOTAL</th>
+                    <th>ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaHistorialVentas"></tbody>
+              </table>
+            </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item bg-dark border-secondary mt-2">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+            data-bs-target="#panelImpuestos">
+            <i class="bi bi-percent me-2 gold-text"></i> CONFIGURACIÓN DE
+            IMPUESTOS
+          </button>
+        </h2>
+        <div id="panelImpuestos" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <section id="seccion-impuestos" class="card mt-4 p-4 mb-5" style="
+                  background: #1a1a1a;
+                  color: white;
+                  border: 1px solid #d4af37;
+                ">
+              <h4 class="gold-text fw-bold mb-3">
+                💰 Configuración de Impuesto
+              </h4>
+              <div class="row align-items-end mb-4">
+                <div class="col-md-3">
+                  <label class="small text-white mb-1">PORCENTAJE ACTUAL (%)</label>
+                  <input type="number" id="input-impuesto" class="form-control bg-black text-white border-secondary"
+                    step="0.01" placeholder="0.00" />
+                </div>
+                <div class="col-md-3">
+                  <button onclick="guardarImpuesto()" class="btn btn-gold w-100 fw-bold">
+                    ACTUALIZAR
+                  </button>
+                </div>
+              </div>
+
+              <h5 class="text-white small fw-bold mt-2">
+                HISTORIAL DE CAMBIOS
+              </h5>
+              <div class="table-responsive">
+                <table class="table table-dark table-sm mt-2">
+                  <thead>
+                    <tr class="text-white small">
+                      <th>FECHA</th>
+                      <th>PORCENTAJE</th>
+                      <th>CAMBIADO POR</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-historial-impuestos"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item bg-dark border-secondary mt-2">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+            data-bs-target="#panelInventario">
+            <i class="bi bi-box-seam me-2 gold-text"></i> GESTIÓN DE
+            INVENTARIO
+          </button>
+        </h2>
+        <div id="panelInventario" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <section class="mt-5">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h4 class="gold-text fw-bold">📦 Inventario de Productos</h4>
+
+
+                <div class="d-flex gap-2">
+                  <input type="text" id="busquedaNombre" class="form-control bg-black text-white border-secondary"
+                    placeholder="Buscar producto..." onkeyup="buscarProductos()" />
+                  <select id="filtroCategoria" class="form-select bg-black text-white border-secondary"
+                    onchange="buscarProductos()">
+                    <option value="">Todas las categorías</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+
+
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                  <button onclick="exportarExcelInventario()" class="btn btn-gold fw-bold p-2">
+                    📊 Exportar a Excel
+                  </button>
+
+                  <button onclick="exportarPDFInventario()" class="btn btn-gold fw-bold p-2">
+                    📄 Exportar a PDF
+                  </button>
+
+                  <button class="btn btn-gold fw-bold p-2" data-bs-toggle="modal" data-bs-target="#modalProducto"
+                    onclick="prepararNuevoProducto()">
+                    + AGREGAR NUEVO PRODUCTO
+                  </button>
+                </div>
+
+                <table class="table table-dark table-hover border-secondary">
+                  <thead class="border-gold">
+                    <tr>
+                      <th class="gold-text">ID</th>
+                      <th class="gold-text">Producto</th>
+                      <th class="gold-text">Categoría</th>
+                      <th class="gold-text">Precio</th>
+                      <th class="gold-text">Stock</th>
+                      <th class="gold-text text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaProductosBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item bg-dark border-secondary mt-2">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+            data-bs-target="#panelUsuarios">
+            <i class="bi bi-people me-2 gold-text"></i> CONTROL DE ACCESOS
+          </button>
+        </h2>
+        <div id="panelUsuarios" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <section class="mt-5 border-top border-secondary pt-5">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="gold-text fw-bold">👥 Usuarios del Sistema</h4>
+                <button class="btn btn-gold  mt-3 fw-bold p-2" data-bs-toggle="modal" data-bs-target="#modalUsuario"
+                  onclick="limpiarFormUsuario()">
+                  + NUEVO USUARIO
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-dark table-sm border-secondary">
+                  <thead>
+                    <tr class="text-muted small">
+                      <th>NOMBRE</th>
+                      <th>CORREO / USER</th>
+                      <th>ROL</th>
+                      <th class="text-center">ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaUsuariosBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-gold">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title gold-text fw-bold">NUEVO SUMINISTRO</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="formProducto">
+
+            <input type="hidden" id="p_id" />
+            <div class="mb-3">
+              <label class="form-label gold-text small fw-bold">Nombre del Producto</label>
+              <input type="text" id="p_nombre" class="form-control bg-black text-white border-secondary shadow-none"
+                placeholder="Ej. Esmalte Gel UV" required />
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label gold-text small fw-bold">Precio Venta</label>
+                <input type="number" id="p_precio" class="form-control bg-black text-white border-secondary shadow-none"
+                  placeholder="0.00" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label gold-text small fw-bold">Stock Inicial</label>
+                <input type="number" id="p_stock" class="form-control bg-black text-white border-secondary shadow-none"
+                  placeholder="10" required />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label gold-text small fw-bold">Categoría</label>
+              <select id="p_categoria" class="form-select bg-black text-white border-secondary shadow-none">
+                <option value="1">Esmaltes</option>
+                <option value="2">Acrílicos</option>
+                <option value="3">Herramientas</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-gold w-100 mt-3 fw-bold p-2">
+              GUARDAR PRODUCTO
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark border-gold">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title gold-text">Configurar Acceso</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formUsuario">
+            <input type="hidden" id="u_id" />
+            <div class="mb-3">
+              <label class="gold-text small">Nombre Completo</label>
+              <input type="text" id="u_nombre" class="form-control bg-black text-white border-secondary" required />
+            </div>
+            <div class="mb-3">
+              <label class="gold-text small">Correo o Nombre de Usuario</label>
+              <input type="text" id="u_correo" class="form-control bg-black text-white border-secondary" required />
+            </div>
+            <div class="mb-3">
+              <label class="gold-text small">Contraseña</label>
+              <input type="password" id="u_pass" class="form-control bg-black text-white border-secondary"
+                placeholder="Dejar en blanco para no cambiar" />
+            </div>
+            <div class="mb-3">
+              <label class="gold-text small">Rol de Acceso</label>
+              <select id="u_rol" class="form-select bg-black text-white border-secondary">
+                <option value="vendedor">Vendedor (Solo Ventas)</option>
+                <option value="admin">Administrador (Control Total)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-gold w-100 mt-3">
+              GUARDAR USUARIO
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalDetalleVenta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-dark text-white border-gold">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title gold-text">Detalle de Factura #<span id="det-factura-id"></span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p><strong>Cliente:</strong> <span id="det-cliente"></span></p>
+              <p><strong>Email:</strong> <span id="det-email"></span></p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p><strong>Fecha:</strong> <span id="det-fecha"></span></p>
+              <p><strong>Vendedor:</strong> <span id="det-vendedor"></span></p>
+            </div>
+          </div>
+
+          <table class="table table-dark table-hover border-secondary">
+            <thead>
+              <tr class="gold-text">
+                <th>Cant</th>
+                <th>Producto</th>
+                <th>Precio Unit.</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="tablaDetalleCuerpo">
+            </tbody>
+          </table>
+
+          <div class="text-end mt-3">
+            <p class="mb-1">Subtotal: <span id="det-subtotal"></span></p>
+            <p class="mb-1">Impuesto: <span id="det-impuesto"></span></p>
+            <h4 class="gold-text">Total: <span id="det-total"></span></h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.min.js"></script>
+  <script src="js/dashboard_admin.js"></script>
+</body>
+
+</html>

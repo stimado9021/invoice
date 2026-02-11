@@ -1,0 +1,70 @@
+body {
+    background-color: #0b0b0b;
+    color: #f1f1f1;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    background-color: #161616;
+    border-right: 1px solid #d4af37;
+}
+
+.gold-text { color: #d4af37; }
+.bg-gold { background-color: #d4af37; }
+
+.stat-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-top: 4px solid #d4af37;
+    border-radius: 10px;
+}
+
+.inventory-section {
+    background-color: #161616;
+    border-radius: 15px;
+    border: 1px solid #222;
+}
+
+.form-control, .form-select {
+    background-color: #000;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: #000;
+    color: #fff;
+    border-color: #d4af37;
+    box-shadow: none;
+}
+
+.btn-gold {
+    background: linear-gradient(45deg, #bf953f, #fcf6ba, #aa771c);
+    color: #000;
+    font-weight: bold;
+    border: none;
+}
+
+
+.accordion-item {
+    border: 1px solid #333 !important;
+    margin-bottom: 0.5rem;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #1a1a1a !important;
+    color: #d4af37 !important;
+    box-shadow: none;
+}
+
+.accordion-button {
+    border-bottom: 1px solid #d4af37 !important;
+}
+
+.stat-card {
+    background: #111;
+    border-left: 4px solid #d4af37;
+    border-radius: 8px;
+}
