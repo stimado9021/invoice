@@ -11,7 +11,7 @@ if (!$input || !isset($input['usuario']) || !isset($input['password'])) {
 
 $userQuery = $input['usuario'];
 $password  = $input['password'];
-
+$accion = 'ENTRADA';
 try {
     $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE correo = ? OR nombre = ?");
     $stmt->execute([$userQuery, $userQuery]);
@@ -20,6 +20,12 @@ try {
     // Importante: Aquí comparamos la clave. 
     // Si en tu DB la guardaste como texto plano, esto funcionará:
     if ($user && $password === $user['password']) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $sqlAudit = "INSERT INTO auditoria_acceso (id_usuario,rol, accion, ip_address) VALUES (?, ?,?, ?)";
+        $stmtAudit = $pdo->prepare($sqlAudit);
+        $stmtAudit->execute([$user['id'],$user['rol'] ,$accion, $ip]);
+
+        
         echo json_encode([
             'success' => true,
             'rol' => $user['rol'],

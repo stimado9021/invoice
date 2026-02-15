@@ -23,39 +23,6 @@ async function cargarUsuariosLogin() {
     }
 }
 
-// // Modificar la función de Validar Login
-// document.getElementById('formLogin').addEventListener('submit', async (e) => {
-//     e.preventDefault();
-    
-//     const usuario = document.getElementById('usuario').value;
-//     const password = document.getElementById('password').value;
-//     console.log(usuario, password);
-//     if (!usuario) {
-//         alert("Por favor, selecciona un usuario.");
-//         return;
-//     }
-
-//     const response = await fetch('api/login.php', {
-//         method: 'POST',
-//         body: JSON.stringify({ usuario, password })
-//     });
-
-//     const res = await response.json();
-
-//     if (res.success) {
-//         localStorage.setItem('user_name', res.nombre);
-//         localStorage.setItem('user_rol', res.rol);
-        
-//         // Redirigir según el rol
-//         if (res.rol === 'admin') {
-//             window.location.href = 'dashboard_admin.html';
-//         } else {
-//             window.location.href = 'dashboard_vendedor.html';
-//         }
-//     } else {
-//         alert('Contraseña incorrecta.');
-//     }
-// });
 
 
 
@@ -67,7 +34,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const mensaje = document.getElementById("mensaje");
 
   mensaje.innerHTML = '<span style="color: #d4af37">Verificando...</span>';
-console.log(usuario,password);
+
   try {
     const response = await fetch("api/login.php", {
       method: "POST",

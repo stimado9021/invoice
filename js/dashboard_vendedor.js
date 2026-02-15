@@ -1,235 +1,222 @@
+// VARIABLES GLOBALES
+let carrito = [];
+let impuestoConfigurado = 0;
+let ventaTemporal = null; // Guardará la venta mientras se procesa el pago en el modal
+
 document.addEventListener("DOMContentLoaded", () => {
-  verificarSesionVendedor();
-  //cargarProductosVendedor();
-  cargarImpuestoVenta(); // Para que el cálculo sea dinámico
-  cargarCategorias()
+    verificarSesionVendedor();
+    cargarImpuestoVenta();
+    cargarCategorias();
+    
+    // Configurar los eventos del modal una sola vez al cargar la página
+    configurarEventosModal();
 });
 
-// 1. SEGURIDAD: Verificar que sea vendedor
 function verificarSesionVendedor() {
-  const rol = localStorage.getItem("user_role");
-
-  if (!rol || rol !== "vendedor") {
-    window.location.href = "index.html";
-  }
-
-  const nombre = localStorage.getItem("user_name");
-  if (document.getElementById("vendedorName")) {
-    document.getElementById("vendedorName").textContent = nombre;
-  }
+    const rol = localStorage.getItem("user_role");
+    if (!rol || rol !== "vendedor") {
+        window.location.href = "index.html";
+    }
+    const nombre = localStorage.getItem("user_name");
+    if (document.getElementById("vendedorName")) {
+        document.getElementById("vendedorName").textContent = nombre;
+    }
 }
 
-// 2. CARGAR PRODUCTOS (Solo lectura para el vendedor)
-// Al cargar los productos en la tabla
-async function cargarProductosVendedor() {
-  try {
-    const res = await fetch("api/productos.php?accion=leer");
-    const productos = await res.json();
-    const tabla = document.getElementById("tablaVentasBody");
-    tabla.innerHTML = "";
-
-    productos.forEach((p) => {
-      tabla.innerHTML += `
-                <tr class="align-middle">
-                    <td class="text-white fw-bold">${p.nombre}</td>
-                    <td class="text-white">$${parseFloat(p.precio).toFixed(2)}</td>
-                    <td>
-                        <span class="badge ${p.stock < 5 ? "bg-danger" : "bg-success"}">
-                            ${p.stock} disp.
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-gold fw-bold" onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio},${p.stock})">
-                            + AGREGAR
-                        </button>
-                    </td>
-                </tr>
-            `;
-    });
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-// 3. OBTENER EL IMPUESTO ACTUAL DE LA BASE DE DATOS
-let impuestoConfigurado = 0;
 async function cargarImpuestoVenta() {
-  try {
-    const res = await fetch("api/impuestos.php?accion=actual");
-    const data = await res.json();
-    impuestoConfigurado = parseFloat(data.porcentaje);
-    
-  } catch (error) {
-    console.error("Error al obtener impuesto:", error);
-  }
+    try {
+        const res = await fetch("api/impuestos.php?accion=actual");
+        const data = await res.json();
+        impuestoConfigurado = parseFloat(data.porcentaje);
+    } catch (error) {
+        console.error("Error al obtener impuesto:", error);
+    }
 }
 
-// 4. LÓGICA DE CIERRE DE SESIÓN
-function cerrarSesion() {
-  if (confirm("¿Cerrar sesión de ventas?")) {
-    localStorage.clear();
-    window.location.replace("index.html");
-  }
+// --- LÓGICA DEL CARRITO ---
+
+function agregarAlCarrito(id, nombre, precio, stockDisponible) {
+    if (stockDisponible <= 0) {
+        alert(`❌ No hay stock disponible para: ${nombre}`);
+        return;
+    }
+    const productoExistente = carrito.find((p) => p.id === id);
+    if (productoExistente) {
+        productoExistente.cantidad++;
+    } else {
+        carrito.push({ id, nombre, precio, cantidad: 1 });
+    }
+    renderizarCarrito();
 }
 
-let carrito = [];
-
-// 1. Agregar productos al carrito
-function agregarAlCarrito(id, nombre, precio,stockDisponible) {
-  // Validamos si hay stock antes de hacer nada
-  console.log(stockDisponible);
-  if (stockDisponible <= 0) {
-    alert(`❌ No hay stock disponible para: ${nombre}`);
-    return;
-  }
-  const productoExistente = carrito.find((p) => p.id === id);
-
-  if (productoExistente) {
-    productoExistente.cantidad++;
-  } else {
-    carrito.push({ id, nombre, precio, cantidad: 1 });
-  }
-  renderizarCarrito();
-}
-
-// Al dibujar el carrito (Ticket de venta)
 function renderizarCarrito() {
-  const listaCarrito = document.getElementById("listaCarrito");
-  listaCarrito.innerHTML = "";
+    const listaCarrito = document.getElementById("listaCarrito");
+    listaCarrito.innerHTML = "";
+    let subtotal = 0;
 
-  let subtotal = 0;
-
-  carrito.forEach((p, index) => {
-    const totalPorProducto = p.precio * p.cantidad;
-    subtotal += totalPorProducto;
-
-    listaCarrito.innerHTML += `
+    carrito.forEach((p, index) => {
+        const totalPorProducto = p.precio * p.cantidad;
+        subtotal += totalPorProducto;
+        listaCarrito.innerHTML += `
             <div class="d-flex justify-content-between align-items-center mb-2 border-bottom border-secondary pb-2">
                 <div class="text-white">
                     <span class="gold-text fw-bold">${p.cantidad}x</span> ${p.nombre}
                 </div>
                 <div class="text-end">
                     <span class="text-white fw-bold">$${totalPorProducto.toFixed(2)}</span>
-                    <button class="btn btn-sm text-danger ms-2" onclick="eliminarDelCarrito(${index})">
-                        <i class="bi bi-trash"></i> ×
-                    </button>
+                    <button class="btn btn-sm text-danger ms-2" onclick="eliminarDelCarrito(${index})">×</button>
                 </div>
-            </div>
-        `;
-  });
-
-  actualizarResumenDinero(subtotal);
+            </div>`;
+    });
+    actualizarResumenDinero(subtotal);
 }
 
-// 3. Cálculos matemáticos (Subtotal, Impuesto, Total)
 function actualizarResumenDinero(subtotal) {
-  // Usamos la variable 'impuestoConfigurado' que traemos de la API
-  const valorImpuesto = subtotal * (impuestoConfigurado / 100);
-  const totalFinal = subtotal + valorImpuesto;
-
-  // Actualizamos las etiquetas en el HTML
-  document.getElementById("resumenSubtotal").textContent =
-    `$${subtotal.toFixed(2)}`;
-  document.getElementById("resumenImpuesto").textContent =
-    `$${valorImpuesto.toFixed(2)} (${impuestoConfigurado}%)`;
-  document.getElementById("resumenTotal").textContent =
-    `$${totalFinal.toFixed(2)}`;
-  document.getElementById("granTotal").textContent =
-    `$${totalFinal.toFixed(2)}`;
+    const valorImpuesto = subtotal * (impuestoConfigurado / 100);
+    const totalFinal = subtotal + valorImpuesto;
+    document.getElementById("resumenSubtotal").textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById("resumenImpuesto").textContent = `$${valorImpuesto.toFixed(2)} (${impuestoConfigurado}%)`;
+    document.getElementById("resumenTotal").textContent = `$${totalFinal.toFixed(2)}`;
+    document.getElementById("granTotal").textContent = `$${totalFinal.toFixed(2)}`;
 }
 
-// 4. Eliminar producto
 function eliminarDelCarrito(index) {
-  carrito.splice(index, 1);
-  renderizarCarrito();
+    carrito.splice(index, 1);
+    renderizarCarrito();
 }
 
-// 5. Finalizar Venta (Aquí conectarás con la base de datos después)
-async function finalizarVenta() {
-  if (carrito.length === 0) {
-    alert("El carrito está vacío");
-    return;
-  }
+// --- PROCESO DE VENTA CON MODAL ---
 
-  const cliente = {
+// Esta función ahora solo ABRE el modal
+async function finalizarVenta() {
+    if (carrito.length === 0) {
+        alert("El carrito está vacío");
+        return;
+    }
+
+    const cliente = {
         nombre: document.getElementById('clienteNombre').value.trim(),
         email: document.getElementById('clienteEmail').value.trim(),
         telefono: document.getElementById('clienteTelefono').value.trim()
     };
-// VALIDACIÓN: Si falta cualquier dato, se detiene
-  if (!cliente.nombre || !cliente.email || !cliente.telefono) {
-    alert("⚠️ Por favor, complete todos los datos del cliente (Nombre, Email y Teléfono) antes de finalizar la venta.");
-    return; 
-  }
-  // Preparar los datos
-  const ventaData = {
-    cliente: cliente,
-    vendedor_id: localStorage.getItem("user_id"), // Asegúrate de guardar el ID al hacer login
-    subtotal: carrito.reduce((sum, p) => sum + p.precio * p.cantidad, 0),
-    impuesto: impuestoConfigurado,
-    total: parseFloat(
-      document.getElementById("resumenTotal").textContent.replace("$", ""),
-    ),
-    productos: carrito,
-  };
-  
 
-  try {
-    const res = await fetch("api/ventas2.php", {
-      method: "POST",
-      body: JSON.stringify(ventaData),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const resultado = await res.json();
-
-    if (resultado.status === "success") {
-      imprimirFactura(ventaData, resultado.venta_id || "001");
-      alert("✅ Venta completada y stock actualizado.");
-      carrito = []; // Limpiar carrito
-      renderizarCarrito(); // Limpiar UI
-      const tabla = document.getElementById("tablaVentasBody");
-      if (tabla) {
-        tabla.innerHTML = "";
-      }
-
-        document.getElementById('clienteNombre').value="";
-        document.getElementById('clienteEmail').value="";
-        document.getElementById('clienteTelefono').value="";
-     
-        document.getElementById('clienteNombre').focus();
-
-      // 4. LIMPIAR EL CUADRO DE TEXTO DE BÚSQUEDA (Lo que pediste)
-      const inputBusqueda = document.getElementById("busquedaNombre");
-      if (inputBusqueda) {
-        inputBusqueda.value = ""; // Vacía el texto escrito
-        //inputBusqueda.focus(); // Opcional: pone el cursor ahí para la siguiente venta
-      }
-      //cargarProductosVendedor(); // Recargar tabla para ver el nuevo stock
-    } else {
-      alert("❌ Error: " + resultado.message);
+    if (!cliente.nombre || !cliente.email || !cliente.telefono) {
+        alert("⚠️ Por favor, complete los datos del cliente.");
+        return;
     }
-  } catch (error) {
-    console.error("Error en la venta:", error);
-  }
+
+    // Preparar objeto temporal
+    const subtotal = carrito.reduce((sum, p) => sum + p.precio * p.cantidad, 0);
+    const total = parseFloat(document.getElementById("resumenTotal").textContent.replace("$", ""));
+
+    ventaTemporal = {
+        cliente: cliente,
+        vendedor_id: localStorage.getItem("user_id"),
+        subtotal: subtotal,
+        impuesto: impuestoConfigurado,
+        total: total,
+        productos: carrito
+    };
+
+    // Actualizar UI del Modal
+    document.getElementById("pagoTotalMostrar").innerText = `$${total.toFixed(2)}`;
+    document.getElementById("efectivoRecibido").value = "";
+    document.getElementById("vueltoMostrar").innerText = "$ 0.00";
+
+    // Abrir Modal usando la API de Bootstrap
+    const modalPago = new bootstrap.Modal(document.getElementById('modalConfirmarPago'));
+    modalPago.show();
 }
 
-// 2. LA FUNCIÓN RENDERIZAR (Corregida)
+// Configura los cálculos de vuelto y el botón de confirmar
+function configurarEventosModal() {
+    const inputRecibido = document.getElementById("efectivoRecibido");
+    const metodoPago = document.getElementById("metodoPago");
+    const btnConfirmar = document.getElementById("btnConfirmarVentaFinal");
+
+    // Calcular vuelto en tiempo real
+    inputRecibido.addEventListener("input", () => {
+        const recibido = parseFloat(inputRecibido.value) || 0;
+        const vuelto = recibido - ventaTemporal.total;
+        const display = document.getElementById("vueltoMostrar");
+        
+        if (vuelto >= 0) {
+            display.innerText = `$${vuelto.toFixed(2)}`;
+            display.className = "text-success fw-bold mb-0";
+        } else {
+            display.innerText = "Faltante";
+            display.className = "text-danger fw-bold mb-0";
+        }
+    });
+
+    // Ocultar/Mostrar sección efectivo
+    metodoPago.addEventListener("change", () => {
+        document.getElementById("seccionEfectivo").style.display = 
+            metodoPago.value === "efectivo" ? "block" : "none";
+    });
+
+    // BOTÓN FINAL DEL MODAL: Aquí se guarda en BD
+    btnConfirmar.onclick = async () => {
+        const metodo = metodoPago.value;
+        const recibido = parseFloat(inputRecibido.value) || 0;
+
+        if (metodo === "efectivo" && recibido < ventaTemporal.total) {
+            alert("⚠️ El monto recibido es insuficiente.");
+            return;
+        }
+
+        // Agregar datos de pago al envío
+        ventaTemporal.metodo_pago = metodo;
+        ventaTemporal.pago_con = recibido;
+
+        try {
+            const res = await fetch("api/ventas2.php", {
+                method: "POST",
+                body: JSON.stringify(ventaTemporal),
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const resultado = await res.json();
+
+            if (resultado.status === "success") {
+                // Cerrar el modal
+                bootstrap.Modal.getInstance(document.getElementById('modalConfirmarPago')).hide();
+                
+                // Imprimir Factura
+                imprimirFactura(ventaTemporal, resultado.venta_id || "001");
+
+                alert("✅ Venta completada.");
+
+                // LIMPIAR TODO
+                carrito = [];
+                renderizarCarrito();
+                document.getElementById('clienteNombre').value = "";
+                document.getElementById('clienteEmail').value = "";
+                document.getElementById('clienteTelefono').value = "";
+                document.getElementById("busquedaNombre").value = "";
+                document.getElementById("tablaVentasBody").innerHTML = "";
+                document.getElementById('clienteNombre').focus();
+            } else {
+                alert("❌ Error: " + resultado.message);
+            }
+        } catch (error) {
+            console.error("Error en la venta:", error);
+        }
+    };
+}
+
+// --- FUNCIONES DE BÚSQUEDA Y CATEGORÍAS (Tus funciones originales) ---
+
 function renderizarTabla(productos) {
-  const tabla = document.getElementById("tablaVentasBody");
-  tabla.innerHTML = "";
-
-  if (!productos || productos.length === 0) {
-    tabla.innerHTML =
-      '<tr><td colspan="6" class="text-center">No se encontraron productos</td></tr>';
-    return;
-  }
-
-  productos.forEach((p) => {
-    const stockClass = p.stock <= 5 ? "text-danger fw-bold" : "text-white";
-
-    // CORRECCIÓN: Comillas simples en '${p.nombre}' para que no falle el click
-    const fila = `
+    const tabla = document.getElementById("tablaVentasBody");
+    tabla.innerHTML = "";
+    if (!productos || productos.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron productos</td></tr>';
+        return;
+    }
+    productos.forEach((p) => {
+        const stockClass = p.stock <= 5 ? "text-danger fw-bold" : "text-white";
+        tabla.innerHTML += `
             <tr>
                 <td>${p.id}</td>
                 <td class="gold-text fw-bold">${p.nombre}</td>
@@ -238,78 +225,55 @@ function renderizarTabla(productos) {
                 <td class="${stockClass}">${p.stock}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-success" 
-                        onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio},${p.stock})">
+                        onclick="agregarAlCarrito(${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, ${p.stock})">
                         + Añadir
                     </button>
                 </td>
-            </tr>
-        `;
-    tabla.innerHTML += fila;
-  });
+            </tr>`;
+    });
 }
 
-
 document.getElementById("filtroCategoria").addEventListener("change", (e) => {
-  const categoriaId = e.target.value.trim();
-  const tabla = document.getElementById("tablaVentasBody"); // Definir aquí adentro
-  
+    const categoriaId = e.target.value;
     fetch(`api/productos.php?accion=buscarCat&categoria_id=${categoriaId}`)
-    .then((response) => response.json())
-    .then((data) => {
-      
-       renderizarTabla(data);
-    })
-    .catch((error) => console.error("Error:", error));
+        .then(res => res.json())
+        .then(data => renderizarTabla(data));
 });
-
 
 document.getElementById("busquedaNombre").addEventListener("keyup", (e) => {
-  const query = e.target.value.trim();
-  const tabla = document.getElementById("tablaVentasBody"); // Definir aquí adentro
-
-
-
-  if (query.length === 0) {
-    tabla.innerHTML = "";
-    return;
-  }
-
-  fetch(`api/productos.php?accion=buscar&nombre=${query}`)
-    .then((response) => response.json())
-    .then((data) => {
-      renderizarTabla(data);
-    })
-    .catch((error) => console.error("Error:", error));
+    const query = e.target.value.trim();
+    if (query.length === 0) return;
+    fetch(`api/productos.php?accion=buscar&nombre=${query}`)
+        .then(res => res.json())
+        .then(data => renderizarTabla(data));
 });
 
+function cargarCategorias() {
+    const select = document.getElementById("filtroCategoria");
+    fetch("api/categorias.php")
+        .then(res => res.json())
+        .then(data => {
+            select.innerHTML = '<option value="">Todas las categorías</option>';
+            data.forEach(cat => {
+                select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+            });
+        });
+}
+
+// --- UTILIDADES ---
+
+function formatearMoneda(valor) {
+    return `$ ${parseFloat(valor).toLocaleString('es-CO', { minimumFractionDigits: 2 })}`;
+}
 
 window.addEventListener('keydown', (e) => {
-    // Si presiona F12
     if (e.key === 'F12') {
-        e.preventDefault(); // Evita que se abra la consola del navegador
+        e.preventDefault();
         finalizarVenta();
     }
 });
 
-function cargarCategorias() {
-  const select = document.getElementById("filtroCategoria");
-
-  fetch("api/categorias.php")
-    .then((response) => response.json())
-    .then((data) => {
-      // Mantener la opción por defecto
-      select.innerHTML = '<option value="">Todas las categorías</option>';
-
-      data.forEach((cat) => {
-        const option = document.createElement("option");
-        option.value = cat.id;
-        option.textContent = cat.nombre;
-        select.appendChild(option);
-      });
-    })
-    .catch((error) => console.error("Error cargando categorías:", error));
-}
-
+// Mantén tu función de imprimirFactura y buscarClienteRealTime igual abajo...
 function imprimirFactura(datos, facturaNum) {
     const { jsPDF } = window.jspdf;
     
@@ -350,6 +314,7 @@ function imprimirFactura(datos, facturaNum) {
     const nombreCliente = datos.cliente.nombre || "Cliente General";
     doc.text(`Nombre: ${nombreCliente}`, 5, 49);
     if(datos.cliente.telefono) doc.text(`Tel: ${datos.cliente.telefono}`, 5, 53);
+    
 
     // --- TABLA DE PRODUCTOS ---
     const tableData = datos.productos.map(p => [
@@ -416,8 +381,7 @@ function imprimirFactura(datos, facturaNum) {
     const pdfBlob = doc.output('bloburl');
     window.open(pdfBlob, '_blank');
 }
-
-
+// [Aquí va tu código de imprimirFactura y buscarClienteRealTime que ya tenías]
 async function buscarClienteRealTime() {
     const input = document.getElementById("clienteNombre");
     const sugerencias = document.getElementById("listaSugerencias");

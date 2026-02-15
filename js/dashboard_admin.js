@@ -71,11 +71,16 @@ async function buscarProductos() {
                     <td>${p.id}</td>
                     <td class="gold-text fw-bold">${p.nombre}</td>
                     <td>${p.categoria_nombre || "General"}</td>
-                    <td>$${parseFloat(p.precio).toLocaleString()}</td>
+                    <td>${parseFloat(p.precio).toFixed(2)}</td>
                     <td class="${stockClass}">${p.stock}</td>
-                    <td>
+                    <td>${p.idDeposito}</td>
+                    <td>${p.codigoPro}</td>
+                    <td class="d-flex align-items-center gap-1">
                         <button class="btn btn-sm btn-outline-warning me-1" onclick="prepararEdicion(${p.id})">✎</button>
                         <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${p.id})">🗑</button>
+                        <button class="btn btn-sm btn-outline-primary"  onclick="abrirModalStock(${p.id}, '${p.nombre}')">
+    📦
+</button>
                     </td>
                 </tr>`;
     });
@@ -94,6 +99,9 @@ async function prepararEdicion(id) {
       document.getElementById("p_precio").value = p.precio;
       document.getElementById("p_stock").value = p.stock;
       document.getElementById("p_categoria").value = p.id_categoria;
+      document.getElementById("p_idDeposito").value = p.idDeposito;
+      document.getElementById("p_codigoPro").value = p.codigoPro;
+
 
       document.querySelector("#modalProducto .modal-title").innerText =
         "EDITAR PRODUCTO";
@@ -125,7 +133,7 @@ async function listarUsuarios() {
     tabla.innerHTML = "";
 
     usuarios.forEach((u) => {
-      console.log(u);
+      
       tabla.innerHTML += `
                 <tr>
                     <td class="align-middle">${u.nombre}</td>
@@ -180,18 +188,20 @@ async function eliminarUsuario(id) {
 
 /** --- EVENTOS DE FORMULARIOS --- **/
 
-document
-  .getElementById("formProducto")
+document.getElementById("formProducto")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = document.getElementById("p_id").value;
     const producto = {
       id,
       nombre: document.getElementById("p_nombre").value,
-      precio: document.getElementById("p_precio").value,
+     precio: parseFloat(document.getElementById("p_precio").value.replace(/[^0-9.-]+/g, "")) || 0,
       stock: document.getElementById("p_stock").value,
       id_categoria: document.getElementById("p_categoria").value,
+      deposito: document.getElementById("p_idDeposito").value,
+      codigoPro: document.getElementById("p_codigoPro").value,
     };
+    console.log(producto);
     const url = id ? "api/actualizar_producto.php" : "api/guardar_producto.php";
     const res = await fetch(url, {
       method: "POST",
@@ -232,13 +242,7 @@ function limpiarFormUsuario() {
     "NUEVO USUARIO";
 }
 
-function formatearMoneda(valor) {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-  }).format(valor || 0);
-}
+
 
 async function cargarDatosImpuesto() {
   // Cargar el porcentaje actual
@@ -312,20 +316,8 @@ async function cargarReportes() {
   }
 }
 
-/** --- CIERRE DE SESIÓN --- **/
-function cerrarSesion() {
-  // 1. Preguntar para evitar cierres accidentales
-  if (confirm("¿Estás seguro de que deseas salir del sistema?")) {
-    // 2. Limpiar todos los datos guardados en el navegador
-    localStorage.clear();
-    sessionStorage.clear();
 
-    // 3. (Opcional) Si usas cookies, podrías borrarlas aquí
 
-    // 4. Redirigir al login inmediatamente
-    window.location.replace("index.html");
-  }
-}
 
 // Función para cargar historial
 async function cargarHistorialVentas() {
@@ -335,14 +327,14 @@ async function cargarHistorialVentas() {
     // Enviamos el periodo como parámetro GET
     const response = await fetch(`api/ventas.php?accion=historial&periodo=${periodo}`);
     const data = await response.json();
-    console.log(data);
+   
     const cuerpo = document.getElementById("tablaHistorialVentas");
     cuerpo.innerHTML = "";
 
     if (data.status === "success") {
       data.ventas.forEach((v) => {
 
-        console.log(v);
+       
         const fechaObj = new Date(v.fecha);
         const fecha = fechaObj.toLocaleDateString("es-CO", {
           day: "2-digit",
@@ -548,3 +540,20 @@ function exportarPDFInventario() {
   window.open(pdfBlob, '_blank');
   //doc.save("Reporte_Inventario_JoicyNails.pdf");
 }
+
+document.getElementById('tipoCodigo').addEventListener('change', function () {
+  const inputCodigo = document.getElementById('p_codigoPro');
+
+  if (this.value === 'automatico') {
+    // Genera un código basado en la fecha y hora actual (único y rápido)
+    const autoGen = 'BC-' + Date.now();
+    inputCodigo.value = autoGen;
+    inputCodigo.readOnly = true; // No permite editarlo
+    inputCodigo.style.backgroundColor = '#e9ecef';
+  } else {
+    inputCodigo.value = '';
+    inputCodigo.readOnly = false;
+    inputCodigo.style.backgroundColor = '#fff';
+    inputCodigo.placeholder = "Ingrese código manualmente";
+  }
+});

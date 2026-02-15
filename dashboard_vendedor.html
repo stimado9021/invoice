@@ -1,169 +1,185 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Punto de Venta | Joicy Nails</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/dashboard.css" />
-  </head>
-  <body>
-    <div class="d-flex">
-      <nav class="sidebar p-4 border-gold-right">
-        <h3 class="gold-text fw-bold mb-4">JOICY SALES</h3>
-        <ul class="nav flex-column">
-          <li class="nav-item mb-3">
-            <a href="#" class="nav-link active">🛒 Nueva Venta</a>
-          </li>
-          <li class="nav-item mb-3">
-            <a href="#" class="nav-link">🔍 Consultar Precios</a>
-          </li>
-          <li class="nav-item mb-3">
-            <a href="#" class="nav-link">📜 Mis Ventas del Día</a>
-          </li>
-          <li class="nav-item mt-5">
-            <a onclick="cerrarSesion()" class="nav-link text-danger"
-              >Cerrar Sesión</a
-            >
-          </li>
-        </ul>
-      </nav>
 
-      <main class="flex-grow-1 p-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="fw-bold gold-text">Módulo de Facturación</h2>
-          <div class="text-end">
-            <p class="m-0 small text-muted">Vendedor:</p>
-            <p id="vendedorName" class="m-0 fw-bold gold-text"></p>
-          </div>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Punto de Venta | Joicy Nails</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
 
-        <div class="card bg-black border-gold p-3 mb-3">
-          <h4 class="gold-text">Datos del Cliente</h4>
-          <div class="row g-2">
-            <div class="col-md-12">
-              <input
-                type="text"
-                id="clienteNombre"
-                class="form-control mb-2 bg-white text-dark border-secondary"
-                placeholder="Nombre Completo"
-                autocomplete="off" 
-                oninput="buscarClienteRealTime()"
-                required
-              />
-              <ul id="listaSugerencias" 
-                  class="list-group position-absolute w-100" 
-                  style="z-index: 1000; display: none;">
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <input
-                type="email"
-                id="clienteEmail"
-                class="form-control bg-white text-dark border-secondary"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div class="col-md-6">
-              <input
-                type="tel"
-                id="clienteTelefono"
-                class="form-control bg-white text-dark border-secondary"
-                placeholder="Teléfono"
-                required
-              />
-            </div>
-          </div>
-        </div>
+<body>
+  <div class="d-flex">
+    <nav class="sidebar p-4 border-gold-right">
+      <h3 class="gold-text fw-bold mb-4">JOICY SALES</h3>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link active">🛒 Nueva Venta</a>
+        </li>
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link">🔍 Consultar Precios</a>
+        </li>
+        <li class="nav-item mb-3">
+          <a href="#" class="nav-link">📜 Mis Ventas del Día</a>
+        </li>
+        <li class="nav-item mt-5">
+          <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
+            Salir del Sistema
+          </button>
+        </li>
+      </ul>
+    </nav>
 
-        <div class="row">
-          <div class="col-md-8">
-            <div class="stat-card p-4 mb-4">
-              <h5 class="gold-text mb-3">Buscar Producto</h5>
-              <div class="row g-2 mb-3">
-                <div class="col-md-8">
-                  <input
-                    id="busquedaNombre"
-                    type="text"
-                    class="form-control"
-                    placeholder="Escanee código o escriba nombre..."
-                  />
-                </div>
-                <div class="col-md-4">
-                  <select id="filtroCategoria" class="form-select" >
-                    <option value="">Todas las categorías</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-dark table-hover">
-                  <thead>
-                    <tr>
-                      <th>Id</th>
-                      <th>Producto</th>
-                      <th>Categoría</th>
-                      <th>Precio</th>
-                      <th>Stock</th>
-                      <th>Accion</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tablaVentasBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="stat-card p-4 text-center">
-              <p class="mb-1">TOTAL A COBRAR</p>
-              <h1 class="gold-text fw-bold mb-4" id="granTotal">$0.00</h1>
-              <button
-                onclick="finalizarVenta()"
-                class="btn btn-gold w-100 btn-lg"
-              >
-                PAGAR (F12)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card bg-black border-gold p-3">
-          <h4 class="gold-text">Resumen de Venta</h4>
-          <div id="listaCarrito" class="my-3"></div>
-
-          <div class="border-top border-gold pt-3">
-            <div class="d-flex justify-content-between text-white-50">
-              <span>SUBTOTAL</span>
-              <span id="resumenSubtotal" class="text-white">$0.00</span>
-            </div>
-            <div class="d-flex justify-content-between text-white-50">
-              <span>IMPUESTO</span>
-              <span id="resumenImpuesto" class="text-white">$0.00 (0%)</span>
-            </div>
-            <hr class="border-gold" />
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="gold-text fw-bold">TOTAL A COBRAR</span>
-              <span id="resumenTotal" class="fs-2 fw-bold text-white"
-                >$0.00</span
-              >
-            </div>
-          </div>
-          <button class="btn btn-gold w-100 mt-3" onclick="finalizarVenta()">
-            REALIZAR COBRO
+    <main class="flex-grow-1 p-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold gold-text">Módulo de Facturación</h2>
+        <div class="text-end">
+          <span id="vendedorName" class="badge border border-gold p-2"></span>
+          <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
+            Salir del Sistema
           </button>
         </div>
-      </main>
+      </div>
+
+      <div class="card bg-black border-gold p-3 mb-3">
+        <h4 class="gold-text">Datos del Cliente</h4>
+        <div class="row g-2">
+          <div class="col-md-12">
+            <input type="text" id="clienteNombre" class="form-control mb-2 bg-white text-dark border-secondary"
+              placeholder="Nombre Completo" autocomplete="off" oninput="buscarClienteRealTime()" required />
+            <ul id="listaSugerencias" class="list-group position-absolute w-100" style="z-index: 1000; display: none;">
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <input type="email" id="clienteEmail" class="form-control bg-white text-dark border-secondary"
+              placeholder="Email" required />
+          </div>
+          <div class="col-md-6">
+            <input type="tel" id="clienteTelefono" class="form-control bg-white text-dark border-secondary"
+              placeholder="Teléfono" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8">
+          <div class="stat-card p-4 mb-4">
+            <h5 class="gold-text mb-3">Buscar Producto</h5>
+            <div class="row g-2 mb-3">
+              <div class="col-md-8">
+                <input id="busquedaNombre" type="text" class="form-control"
+                  placeholder="Escanee código o escriba nombre..." />
+              </div>
+              <div class="col-md-4">
+                <select id="filtroCategoria" class="form-select">
+                  <option value="">Todas las categorías</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-dark table-hover">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Accion</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaVentasBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card p-4 text-center">
+            <p class="mb-1">TOTAL A COBRAR</p>
+            <h1 class="gold-text fw-bold mb-4" id="granTotal">$0.00</h1>
+            <button onclick="finalizarVenta()" class="btn btn-gold w-100 btn-lg">
+              PAGAR (F12)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-black border-gold p-3">
+        <h4 class="gold-text">Resumen de Venta</h4>
+        <div id="listaCarrito" class="my-3"></div>
+
+        <div class="border-top border-gold pt-3">
+          <div class="d-flex justify-content-between text-white-50">
+            <span>SUBTOTAL</span>
+            <span id="resumenSubtotal" class="text-white">$0.00</span>
+          </div>
+          <div class="d-flex justify-content-between text-white-50">
+            <span>IMPUESTO</span>
+            <span id="resumenImpuesto" class="text-white">$0.00 (0%)</span>
+          </div>
+          <hr class="border-gold" />
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="gold-text fw-bold">TOTAL A COBRAR</span>
+            <span id="resumenTotal" class="fs-2 fw-bold text-white">$0.00</span>
+          </div>
+        </div>
+        <button class="btn btn-gold w-100 mt-3" onclick="finalizarVenta()">
+          REALIZAR COBRO
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal fade" id="modalConfirmarPago" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white border-warning">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title gold-text fw-bold">PROCESAR COBRO</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-4">
+            <h6 class="text-white-50 small">TOTAL A PAGAR</h6>
+            <h2 class="gold-text fw-bold" id="pagoTotalMostrar">$0.00</h2>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label small">Método de Pago</label>
+          <select id="metodoPago" class="form-select bg-black text-white border-secondary shadow-none">
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia / Tarjeta</option>
+          </select>
+        </div>
+
+        <div id="seccionEfectivo">
+          <div class="mb-3">
+            <label class="form-label small">Efectivo Recibido</label>
+            <input type="number" id="efectivoRecibido" class="form-control bg-black text-white border-warning fs-4 shadow-none" placeholder="0">
+          </div>
+          <div class="p-3 bg-black border border-secondary rounded text-center">
+            <span class="text-white-50 small">CAMBIO (VUELTO):</span>
+            <h3 class="text-success fw-bold mb-0" id="vueltoMostrar">$ 0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnConfirmarVentaFinal" class="btn btn-warning fw-bold text-dark w-50">FINALIZAR VENTA</button>
+      </div>
     </div>
-    <script src="js/dashboard_vendedor.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  </body>
+  </div>
+</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  <script src="js/dashboard_vendedor.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+
 </html>

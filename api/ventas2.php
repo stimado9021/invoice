@@ -41,14 +41,15 @@ if ($clienteExistente) {
 }
 
     // 2. REGISTRAR LA VENTA (Cabecera)
-    $sqlVenta = "INSERT INTO ventas (vendedor_id, cliente_id, subtotal, impuesto, total) VALUES (?, ?, ?, ?, ?)";
+    $sqlVenta = "INSERT INTO ventas (vendedor_id, cliente_id, subtotal, impuesto, total,metodo_pago) VALUES (?, ?, ?, ?, ?,?)";
     $stmtVenta = $pdo->prepare($sqlVenta);
     $stmtVenta->execute([
         $data['vendedor_id'],
         $clienteId,
         $data['subtotal'],
         $data['impuesto'],
-        $data['total']
+        $data['total'],
+        $data['metodo_pago']
     ]);
     $venta_id = $pdo->lastInsertId();
 

@@ -30,7 +30,9 @@
         </li>
 
         <li class="nav-item mt-5">
-          <a onclick="cerrarSesion()" class="nav-link text-danger" style="cursor: pointer">Salir</a>
+          <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
+            Salir del Sistema
+          </button>
         </li>
       </ul>
     </nav>
@@ -39,7 +41,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold gold-text">Dashboard Administrativo</h2>
         <div class="d-flex align-items-center gap-3">
-          <span id="adminName" class="badge border border-gold p-2">Admin</span>
+          <span id="vendedorName" class="badge border border-gold p-2"></span>
           <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">
             Salir del Sistema
           </button>
@@ -72,7 +74,7 @@
 
       <div class="accordion-item bg-dark border-secondary mt-2">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          <button class="accordion-button collapsed bg-dark text-white p-3" type="button" data-bs-toggle="collapse"
             data-bs-target="#panelHistorial">
             <i class="bi bi-clock-history me-2 gold-text"></i> HISTORIAL DE
             VENTAS
@@ -122,7 +124,7 @@
 
       <div class="accordion-item bg-dark border-secondary mt-2">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          <button class="accordion-button collapsed bg-dark text-white p-3" type="button" data-bs-toggle="collapse"
             data-bs-target="#panelImpuestos">
             <i class="bi bi-percent me-2 gold-text"></i> CONFIGURACIÓN DE
             IMPUESTOS
@@ -173,7 +175,7 @@
 
       <div class="accordion-item bg-dark border-secondary mt-2">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          <button class="accordion-button collapsed bg-dark text-white p-3" type="button" data-bs-toggle="collapse"
             data-bs-target="#panelInventario">
             <i class="bi bi-box-seam me-2 gold-text"></i> GESTIÓN DE
             INVENTARIO
@@ -184,15 +186,19 @@
             <section class="mt-5">
               <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <h4 class="gold-text fw-bold">📦 Inventario de Productos</h4>
+                <h4 class="gold-text fw-bold">📦 Inventario</h4>
 
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-3">
                   <input type="text" id="busquedaNombre" class="form-control bg-black text-white border-secondary"
                     placeholder="Buscar producto..." onkeyup="buscarProductos()" />
                   <select id="filtroCategoria" class="form-select bg-black text-white border-secondary"
                     onchange="buscarProductos()">
                     <option value="">Todas las categorías</option>
+                  </select>
+                  <select id="filtroDeposito" class="form-select bg-black text-white border-secondary"
+                    >
+                    <!-- <option value="">Todos los Depositos</option> -->
                   </select>
                 </div>
               </div>
@@ -223,6 +229,8 @@
                       <th class="gold-text">Categoría</th>
                       <th class="gold-text">Precio</th>
                       <th class="gold-text">Stock</th>
+                      <th class="gold-text">Deposito</th>
+                      <th class="gold-text">Codigo</th>
                       <th class="gold-text text-center">Acciones</th>
                     </tr>
                   </thead>
@@ -236,7 +244,7 @@
 
       <div class="accordion-item bg-dark border-secondary mt-2">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse"
+          <button class="accordion-button collapsed bg-dark text-white p-3" type="button" data-bs-toggle="collapse"
             data-bs-target="#panelUsuarios">
             <i class="bi bi-people me-2 gold-text"></i> CONTROL DE ACCESOS
           </button>
@@ -277,12 +285,13 @@
       <div class="modal-content bg-dark border-gold">
         <div class="modal-header border-secondary">
           <h5 class="modal-title gold-text fw-bold">NUEVO SUMINISTRO</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white " data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4">
           <form id="formProducto">
 
             <input type="hidden" id="p_id" />
+
             <div class="mb-3">
               <label class="form-label gold-text small fw-bold">Nombre del Producto</label>
               <input type="text" id="p_nombre" class="form-control bg-black text-white border-secondary shadow-none"
@@ -291,22 +300,40 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label gold-text small fw-bold">Precio Venta</label>
-                <input type="number" id="p_precio" class="form-control bg-black text-white border-secondary shadow-none"
-                  placeholder="0.00" required />
+                <input type="text" id="p_precio" class="form-control bg-black text-white border-secondary shadow-none"
+                  placeholder="0.00"   style="text-align:right; font-weight: bold; padding-left: 10px;" />
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label gold-text small fw-bold">Stock Inicial</label>
-                <input type="number" id="p_stock" class="form-control bg-black text-white border-secondary shadow-none"
-                  placeholder="10" required />
+                <input type="number" id="p_stock" style="text-align:right; font-weight: bold; padding-left: 10px;" class="form-control bg-white text-dark border-secondary shadow-none"
+                  value="0" readonly />
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label gold-text small fw-bold">Categoría</label>
               <select id="p_categoria" class="form-select bg-black text-white border-secondary shadow-none">
-                <option value="1">Esmaltes</option>
-                <option value="2">Acrílicos</option>
-                <option value="3">Herramientas</option>
               </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label gold-text small fw-bold">Depósito</label>
+              <select name="deposito" id="p_idDeposito" class="form-select bg-black text-white border-secondary shadow-none">
+                <option value="">Seleccione un depósito...</option>                
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label gold-text small fw-bold">Tipo de Código</label>
+                <select id="tipoCodigo" class="form-select bg-black text-white border-secondary shadow-none">
+                  <option value="manual">Manual</option>
+                  <option value="automatico">Automático</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label gold-text small fw-bold">Código de Producto</label>
+                <input type="text" id="p_codigoPro" name="codigo" class="form-control bg-black text-white border-secondary shadow-none"
+                  placeholder="Escriba el código...">
+              </div>
             </div>
             <button type="submit" class="btn btn-gold w-100 mt-3 fw-bold p-2">
               GUARDAR PRODUCTO
@@ -398,8 +425,30 @@
     </div>
   </div>
 
-
-
+<div class="modal fade" id="modalAgregarStock" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white border-primary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title">📦 Agregar Stock: <span id="nombreProductoStock" class="text-info"></span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formAgregarStock">
+            <input type="hidden" id="idProductoStock">
+            
+            <div class="mb-3">
+                <label class="form-label">Cantidad a ingresar:</label>
+                <input type="number" id="nuevaCantidad" class="form-control bg-secondary text-white border-0" placeholder="Ej: 10" required min="1">
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="guardarNuevoStock()">Actualizar Stock</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -407,6 +456,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.min.js"></script>
   <script src="js/dashboard_admin.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 
 </html>
