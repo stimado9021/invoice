@@ -51,7 +51,9 @@ async function cargarEstadisticas() {
 async function buscarProductos() {
   const inputBusqueda = document.getElementById("busquedaNombre");
   const filtroCat = document.getElementById("filtroCategoria");
+  const filtroDeposito = document.getElementById("filtroDeposito");
   const tablaPro = document.getElementById("tablaProductosBody");
+const idDeposito = document.getElementById('filtroDeposito').value; 
 
   // Evitar errores si los elementos no existen aún
   const nombrePro = inputBusqueda ? inputBusqueda.value : "";
@@ -59,24 +61,25 @@ async function buscarProductos() {
 
   try {
     const response = await fetch(
-      `api/productos.php?accion=buscar&nombre=${nombrePro}&categoria=${catPro}`,
+      `api/productos.php?accion=buscar&nombre=${nombrePro}&categoria=${catPro}&idDeposito=${idDeposito}`,
     );
 
     const productos = await response.json();
+    
     tablaPro.innerHTML = '';
     productos.forEach((p) => {
       const stockClass = p.stock <= 5 ? "text-danger fw-bold" : "text-white";
       tablaPro.innerHTML += `
                 <tr>
-                    <td>${p.id}</td>
+                    <td>${p.codigoPro}</td>
                     <td class="gold-text fw-bold">${p.nombre}</td>
                     <td>${p.categoria_nombre || "General"}</td>
                     <td>${parseFloat(p.precio).toFixed(2)}</td>
                     <td class="${stockClass}">${p.stock}</td>
-                    <td>${p.idDeposito}</td>
-                    <td>${p.codigoPro}</td>
+                    <td>${p.id_deposito}</td>
+                    
                     <td class="d-flex align-items-center gap-1">
-                        <button class="btn btn-sm btn-outline-warning me-1" onclick="prepararEdicion(${p.id})">✎</button>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="prepararEdicion(${p.id},${p.id_deposito})">✎</button>
                         <button class="btn btn-sm btn-outline-danger" onclick="eliminarProducto(${p.id})">🗑</button>
                         <button class="btn btn-sm btn-outline-primary"  onclick="abrirModalStock(${p.id}, '${p.nombre}')">
     📦
@@ -89,9 +92,9 @@ async function buscarProductos() {
   }
 }
 
-async function prepararEdicion(id) {
+async function prepararEdicion(id,idDeposito) {
   try {
-    const response = await fetch(`api/get_producto.php?id=${id}`);
+    const response = await fetch(`api/get_producto.php?id=${id}&idDeposito=${idDeposito}`);
     const p = await response.json();
     if (p) {
       document.getElementById("p_id").value = p.id;
@@ -101,7 +104,9 @@ async function prepararEdicion(id) {
       document.getElementById("p_categoria").value = p.id_categoria;
       document.getElementById("p_idDeposito").value = p.idDeposito;
       document.getElementById("p_codigoPro").value = p.codigoPro;
-
+        if(p.deposito){
+          document.getElementById("p_idDeposito").attributes.readOnly=true
+        }
 
       document.querySelector("#modalProducto .modal-title").innerText =
         "EDITAR PRODUCTO";
@@ -192,16 +197,19 @@ document.getElementById("formProducto")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = document.getElementById("p_id").value;
+    const id_user=localStorage.getItem('user_id');
+    console.log(id_user); 
     const producto = {
       id,
       nombre: document.getElementById("p_nombre").value,
      precio: parseFloat(document.getElementById("p_precio").value.replace(/[^0-9.-]+/g, "")) || 0,
-      stock: document.getElementById("p_stock").value,
+      //stock: document.getElementById("p_stock").value,
       id_categoria: document.getElementById("p_categoria").value,
       deposito: document.getElementById("p_idDeposito").value,
       codigoPro: document.getElementById("p_codigoPro").value,
+      id_user:id_user
     };
-    console.log(producto);
+  
     const url = id ? "api/actualizar_producto.php" : "api/guardar_producto.php";
     const res = await fetch(url, {
       method: "POST",
@@ -526,7 +534,7 @@ function exportarPDFInventario() {
     headStyles: { fillColor: [184, 134, 11] }, // Encabezado dorado
     styles: { fontSize: 8, cellPadding: 3 },
     columns: [
-      { header: 'ID', dataKey: 0 },
+      { header: 'codigoPro', dataKey: 0 },
       { header: 'Producto', dataKey: 1 },
       { header: 'Categoria', dataKey: 2 },
       { header: 'Precio', dataKey: 3 },

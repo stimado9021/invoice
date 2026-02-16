@@ -198,7 +198,7 @@
                   </select>
                   <select id="filtroDeposito" class="form-select bg-black text-white border-secondary"
                     >
-                    <!-- <option value="">Todos los Depositos</option> -->
+                    <option value="3" >supply</option>
                   </select>
                 </div>
               </div>
@@ -224,13 +224,13 @@
                 <table class="table table-dark table-hover border-secondary">
                   <thead class="border-gold">
                     <tr>
-                      <th class="gold-text">ID</th>
+                      <th class="gold-text">Codigo</th>
                       <th class="gold-text">Producto</th>
                       <th class="gold-text">Categoría</th>
                       <th class="gold-text">Precio</th>
                       <th class="gold-text">Stock</th>
                       <th class="gold-text">Deposito</th>
-                      <th class="gold-text">Codigo</th>
+                      
                       <th class="gold-text text-center">Acciones</th>
                     </tr>
                   </thead>
@@ -305,7 +305,7 @@
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label gold-text small fw-bold">Stock Inicial</label>
-                <input type="number" id="p_stock" style="text-align:right; font-weight: bold; padding-left: 10px;" class="form-control bg-white text-dark border-secondary shadow-none"
+                <input type="number" id="p_stock" style="text-align:right; font-weight: bold; padding-left: 10px;" class="form-control bg-dark text-danger border-secondary shadow-none"
                   value="0" readonly />
               </div>
             </div>
