@@ -183,10 +183,10 @@ function configurarEventosModal() {
                 bootstrap.Modal.getInstance(document.getElementById('modalConfirmarPago')).hide();
                 
                 // Imprimir Factura
-                imprimirFactura(ventaTemporal, resultado.venta_id || "001");
+                
 
                 alert("✅ Venta completada.");
-
+                imprimirFactura(ventaTemporal, resultado.venta_id || "001");
                 // LIMPIAR TODO
                 carrito = [];
                 renderizarCarrito();
@@ -213,12 +213,14 @@ function renderizarTabla(productos) {
     if (!productos || productos.length === 0) {
         tabla.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron productos</td></tr>';
         return;
-    }
+    }  
+    // console.log(productos)   
     productos.forEach((p) => {
+      
         const stockClass = p.stock <= 5 ? "text-danger fw-bold" : "text-white";
         tabla.innerHTML += `
             <tr>
-                <td>${p.id}</td>
+                <td>${p.codigoPro}</td>
                 <td class="gold-text fw-bold">${p.nombre}</td>
                 <td>${p.categoria_nombre || "General"}</td>
                 <td>$${parseFloat(p.precio).toFixed(2)}</td>
@@ -234,6 +236,7 @@ function renderizarTabla(productos) {
 }
 
 document.getElementById("filtroCategoria").addEventListener("change", (e) => {
+    
     const categoriaId = e.target.value;
     fetch(`api/productos.php?accion=buscarCat&categoria_id=${categoriaId}`)
         .then(res => res.json())
@@ -317,6 +320,7 @@ function imprimirFactura(datos, facturaNum) {
     
 
     // --- TABLA DE PRODUCTOS ---
+    console.log(datos.productos);
     const tableData = datos.productos.map(p => [
         p.cantidad,
         p.nombre,

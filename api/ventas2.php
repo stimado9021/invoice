@@ -56,10 +56,8 @@ if ($clienteExistente) {
     foreach ($data['productos'] as $prod) {
         
         $stmtDetalle = $pdo->prepare("INSERT INTO ventas_detalle (venta_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)");
-        $stmtDetalle->execute([$venta_id, $prod['id'], $prod['cantidad'], $prod['precio']]);
-
-       
-        $stmtStock = $pdo->prepare("UPDATE productos SET stock = stock - ? WHERE id = ?");
+        $stmtDetalle->execute([$venta_id, $prod['id'], $prod['cantidad'], $prod['precio']]);       
+        $stmtStock = $pdo->prepare("UPDATE stock_depositos SET cantidad = cantidad - ? WHERE id_producto = ?");
         $stmtStock->execute([$prod['cantidad'], $prod['id']]);
     }
 

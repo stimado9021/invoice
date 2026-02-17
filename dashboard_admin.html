@@ -277,8 +277,75 @@
           </div>
         </div>
       </div>
+
+
+      
+      <div class="accordion-item bg-dark border-secondary mt-2">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-dark text-white p-3" type="button" data-bs-toggle="collapse"
+            data-bs-target="#panelCategoria">
+            <i class="bi bi-people me-2 gold-text"></i> CATEGORIAS
+          </button>
+        </h2>
+        <div id="panelCategoria" class="accordion-collapse collapse" data-bs-parent="#accordionAdmin">
+          <div class="accordion-body">
+            <section class="mt-5 border-top border-secondary pt-5">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="gold-text fw-bold">👥 Categorias</h4>
+                <button class="btn btn-gold  mt-3 fw-bold p-2" data-bs-toggle="modal" data-bs-target="#modalCategoria".
+                  onclick="limpiarFormCategorias()">
+                  + NUEVA CATEGORIA
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-dark table-sm border-secondary">
+                  <thead>
+                    <tr class="text-muted small">
+                      <th class="text-center">ID</th>
+                      <th class="text-center">CATEGORIA</th>
+                      
+                      <th class="text-center">ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaCatBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+
+
+
     </main>
   </div>
+
+
+  <!-- // AREA DE  LOS MODALES -->
+
+  <div class="modal fade" id="modalCategoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-white" style="border: 1px solid #ffc107;">
+      <div class="modal-header">
+        <h5 class="modal-title">Nueva Categoría</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formCategoria">
+          <div class="mb-3">
+            <label for="nombre_categoria" class="form-label">Nombre de la Categoría</label>
+            <input type="text" class="form-control bg-secondary text-white border-0" id="nombre_categoria" required placeholder="Ej: Manicura">
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-warning">Guardar Categoría</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
   <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

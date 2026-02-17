@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarDepositosPro();
   // cargarVentasResumen();
   cargarDepositos()
+  cargarCategoriasDos()
 });
 
 
@@ -63,6 +64,31 @@ function cargarCategoriasPro() {
     .catch((error) => console.error("Error cargando categorías:", error));
 }
 
+function cargarCategoriasDos() {
+  const tablaCatBody = document.getElementById("tablaCatBody");
+
+  fetch("api/categorias.php")
+    .then((response) => response.json())
+    .then((data) => {
+      // Mantener la opción por defecto
+      tablaCatBody.innerHTML = '';
+      console.log(data);
+      data.forEach((cat) => {
+        tablaCatBody.innerHTML += `
+                    <tr>
+                        <td class="text-white text-center">${cat.id}</td>
+                        <td class="text-white text-center">${cat.nombre}</td>
+                        <td class="d-flex justify-content-center align-items-center">
+                            <button class="btn btn-sm btn-danger" onclick="eliminarCategoria(${cat.id})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+      });
+    })
+    .catch((error) => console.error("Error cargando categorías:", error));
+}
 
 function cargarDepositosPro() {
   const select = document.getElementById("p_idDeposito");
@@ -172,4 +198,59 @@ async function guardarNuevoStock() {
     console.error("Error en la petición:", error);
     alert("No se pudo conectar con el servidor.");
   }
+}
+
+
+document.getElementById('formCategoria').addEventListener('submit', function (e) {
+  e.preventDefault();
+      const elementoModal = document.getElementById('modalCategoria');
+      const instanciaModal = bootstrap.Modal.getInstance(elementoModal);
+
+      if (instanciaModal) {
+        instanciaModal.hide();
+      }
+   
+  const nombre = document.getElementById('nombre_categoria').value;
+
+  // Usamos FormData para enviar los datos
+  const datos = new FormData();
+  datos.append('nombre', nombre);
+
+  fetch('api/guardar_categoria.php', {
+    method: 'POST',
+    body: datos
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        alert('¡Categoría guardada con éxito!');
+        cargarCategoriasDos()
+
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Hubo un error al conectar con el servidor');
+    });
+});
+
+
+async function eliminarCategoria(id) {
+  if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+   
+
+    try {
+      const response = await fetch(`api/eliminar_categoria.php?id=${id}`);
+      
+   cargarCategoriasDos()
+
+     
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un error al conectar con el servidor');
+    }
+  }
+
 }
